@@ -1,5 +1,7 @@
 package com.nextbasecrm.step_definitions;
 
+
+import com.nextbasecrm.utilities.ConfigurationReader;
 import com.nextbasecrm.utilities.Driver;
 import cucumber.api.Scenario;
 import cucumber.api.java.After;
@@ -7,30 +9,33 @@ import cucumber.api.java.Before;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 
+import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 
 public class Hook {
 
     @Before
-    public void setUp(){
-        Driver.getDriver().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+    public void setUp(Scenario scenario){
+        System.out.println("Before");
+//        System.out.println(scenario.getSourceTagNames());
+//        System.out.println(scenario.getName());
         Driver.getDriver().manage().window().maximize();
+        Driver.getDriver().manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        Driver.getDriver().get(ConfigurationReader.getProperty("url"));
     }
 
+    @After
+    public void tearDown(Scenario scenario){
 
-    @After()
-    public void tearDown(Scenario scenario) {
         if(scenario.isFailed()){
-            final byte[] screenshot =((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
-            scenario.embed(screenshot,"image/png");
+            TakesScreenshot takesScreenshot = (TakesScreenshot) Driver.getDriver();
+            byte[] image = takesScreenshot.getScreenshotAs(OutputType.BYTES);
+            //will attach a screenshot in the report
+            scenario.embed(image, "image/png");
         }
-        System.out.println("Closing driver with After method");
         Driver.closeDriver();
+        System.out.println("After");
+
     }
-
-
-
 }
-
-
 
